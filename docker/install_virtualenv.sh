@@ -29,6 +29,7 @@ python3 -m pip install -U pip
 #make -j 8
 
 python3 -m pip install streamlit
+python3 -m pip install st_btn_select
 #./env.$pv/bin/python3 -m pip install -U setuptools
 # ./env.$pv/bin/python3 -m pip install torch==1.7.1+cu110 torchvision==0.8.2+cu110 torchaudio==0.7.2 -f https://download.pytorch.org/whl/torch_stable.html
 #./env.$pv/bin/python3 -m pip install torch torchvision torchaudio -f https://download.pytorch.org/whl/torch_stable.html
