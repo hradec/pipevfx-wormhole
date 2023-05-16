@@ -9,7 +9,14 @@ fi
 
 volumes=""
 for each in $(ls -1 /*/.root) ; do
+	each=$(dirname $each)
 	volumes="$volumes -v $each:$each "
+done
+for each in $(ls -1 $CD/scripts/*) ; do
+	abs=$(dirname $(readlink -f $each))
+	if [ "$(echo $volumes | grep $abs)" == "" ] ; then
+		volumes="$volumes -v $abs:$abs "
+	fi
 done
 
 docker build $CD/docker/ -t hradec/streamlit
