@@ -36,46 +36,65 @@ def sidebar():
         st.session_state.script = ret
         return ret
 
-script = sidebar()
-#cols = st.columns(4,gap="small")
-st.write("## %s" % os.path.basename(script), )
-selection = ''
-selection = st_btn_select( ("SHOW CODE", "RUN", "STOP"), index=0, nav=False )
-st.divider()
+def _show_code(script):
+    code = ''.join(open(script, 'r').readlines())
+    with st.expander("source code"):
+        st.code(code, language='bash')
 
-print(selection)
-if selection == "SHOW CODE":
+def _run(script):
+    with rd.stdout():
+        proc = subprocess.Popen( [script], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        print("="*200)
+        while True:
+            status = proc.poll()
+            if status == None:
+                try:
+                    outs, errs = proc.communicate(timeout=15)
+                except TimeoutExpired:
+                    proc.kill()
+                    outs, errs = proc.communicate()
+
+                for l in outs.splitlines():
+                    print( l.decode("utf-8")  )
+                for l in errs.splitlines():
+                    print( l.decode("utf-8")  )
+
+            elif status == 0:
+                # harvest the answers
+                print("=" * 200)
+                print( "finished susscessfully - return code:", status)
+                break
+            else:
+                print("=" * 200)
+                print( "command failed - return code:", status )
+                break
+            time.sleep(0.1)
+            print("="*200)
+
+def _stop(script):
     code = ''.join(open(script, 'r').readlines())
     st.code(code, language='bash')
 
-elif selection == "RUN":
-        with rd.stdout():
-            proc = subprocess.Popen( [script], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            print("="*200)
-            while True:
-                status = proc.poll()
-                if status == None:
-                    try:
-                        outs, errs = proc.communicate(timeout=15)
-                    except TimeoutExpired:
-                        proc.kill()
-                        outs, errs = proc.communicate()
-                    print(type(outs))
-                    for l in outs.splitlines():
-                        print( l.decode("utf-8")  )
-                    #print( errs )
-                elif status == 0:
-                    # harvest the answers
-                    print("=" * 200)
-                    print( "finished susscessfully - return code:", status)
-                    break
-                else:
-                    print("=" * 200)
-                    print( "command failed - return code:", status )
-                    break
-                time.sleep(0.1)
-            print("="*200)
+script = sidebar()
 
-elif selection == "STOP":
+with st.container():
+    st.write("## %s" % os.path.basename(script), )
 
-    pass
+    cols = st.columns([1,10], gap="small")
+    scols = cols[0].columns(2, gap="small")
+    # show = scols[0].button("SHOW CODE", use_container_width=True, args=[script])
+    run = scols[0].button("RUN", use_container_width=True, args=[script], type="primary")
+    stop = scols[1].button("STOP", use_container_width=True, args=[script])
+
+    #selection = st_btn_select( ("SHOW CODE", "RUN", "STOP"), index=0, nav=False, key='actions' )
+
+    with cols[1]:
+        _show_code(script)
+    st.divider()
+
+
+    if run:
+        _run(script)
+
+    elif stop:
+        _stop(script)
