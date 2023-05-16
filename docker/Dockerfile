@@ -12,4 +12,6 @@ RUN chmod a+rwx -R /root/
 COPY init.sh /init.sh
 RUN chmod a+rx -R /init.sh
 
+RUN apt install -y curl wget 
+
 ENTRYPOINT ["/init.sh"]
