@@ -15,7 +15,13 @@ if [ "$1" == "-s" ] ; then
 	exit 0
 fi
 if [ "$1" == "-h" ] ; then
-	echo -e "\n$(basename $0)\n\n\t -d = run in daemon mode\n\t -l = display daemon log\n\n"
+	echo -e "
+	$(basename $0)
+
+ 		-d	run in daemon mode
+		-l	display daemon log
+		-s	run a shell in the container running the daemon (for debugging)
+	"
 	exit 0
 fi
 ./tools/run-docker.sh python3 -m streamlit run --theme.base dark ./python/scripts.py
