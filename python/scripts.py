@@ -42,22 +42,26 @@ def _show_code(script):
         st.code(code, language='bash')
 
 def _run(script):
+    st.session_state.kill = False
     with rd.stdout():
-        proc = subprocess.Popen( [script], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc = subprocess.Popen( [script], shell=False, bufsize=1, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         print("="*200)
         while True:
             status = proc.poll()
+            if st.session_state.kill:
+                proc.kill()
             if status == None:
+                outs = None
                 try:
-                    outs, errs = proc.communicate(timeout=15)
-                except TimeoutExpired:
-                    proc.kill()
-                    outs, errs = proc.communicate()
-
-                for l in outs.splitlines():
-                    print( l.decode("utf-8")  )
-                for l in errs.splitlines():
-                    print( l.decode("utf-8")  )
+                    outs, errs = proc.communicate(timeout=1)
+                except subprocess.TimeoutExpired:
+                    #proc.kill()
+                    #outs, errs = proc.communicate()
+                    pass
+                print(st.session_state.kill)
+                if outs:
+                    for l in outs.splitlines():
+                        print( l.decode("utf-8")  )
 
             elif status == 0:
                 # harvest the answers
@@ -68,12 +72,11 @@ def _run(script):
                 print("=" * 200)
                 print( "command failed - return code:", status )
                 break
-            time.sleep(0.1)
-            print("="*200)
+            time.sleep(0.01)
+            # print("="*200)
 
 def _stop(script):
-    code = ''.join(open(script, 'r').readlines())
-    st.code(code, language='bash')
+    st.session_state.kill = True
 
 script = sidebar()
 
@@ -84,7 +87,7 @@ with st.container():
     scols = cols[0].columns(2, gap="small")
     # show = scols[0].button("SHOW CODE", use_container_width=True, args=[script])
     run = scols[0].button("RUN", use_container_width=True, args=[script], type="primary")
-    stop = scols[1].button("STOP", use_container_width=True, args=[script])
+    stop = scols[1].button("STOP", use_container_width=True, on_click=_stop, args=[script])
 
     #selection = st_btn_select( ("SHOW CODE", "RUN", "STOP"), index=0, nav=False, key='actions' )
 
@@ -95,6 +98,3 @@ with st.container():
 
     if run:
         _run(script)
-
-    elif stop:
-        _stop(script)
