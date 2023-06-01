@@ -121,6 +121,11 @@ class _Redirect:
         return res
 
     def _write(self, data):
+        # MAX_LINES=30
+        # lines = data.split('\n')
+        # if len(lines) > MAX_LINES:
+        #     lines = lines[-MAX_LINES:]
+        #     data = '\n'.join(lines)
         self.fun(data)
 
 
@@ -143,7 +148,7 @@ with rd.stdout, rd.stderr(format='markdown', to=st.sidebar):
     print("hello  ")
     time.sleep(1)
     i = 5
-    while i > 0: 
+    while i > 0:
         print("**M**izu?  ", file=sys.stdout if getrandbits(1) else sys.stderr)
         i -= 1
         with rd.stdout(to=so):

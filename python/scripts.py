@@ -2,6 +2,7 @@
 import os, glob, time, subprocess
 
 import streamlit as st
+import streamlit.components.v1 as components
 from st_btn_select import st_btn_select
 import redirect as rd
 
@@ -41,28 +42,45 @@ def _show_code(script):
     with st.expander("source code"):
         st.code(code, language='bash')
 
-def _run(script):
+def _run(script, maxsize = None):
     st.session_state.kill = False
+    if maxsize:
+        st.markdown("""
+            <style>
+            pre {
+                max-height: %dpx;
+            }
+            </style>
+        """ % maxsize, unsafe_allow_html=True)
     with rd.stdout():
         proc = subprocess.Popen( [script], shell=False, bufsize=1, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         print("="*200)
         status = 0
         while True:
             status = proc.poll()
+            print(status)
             if st.session_state.kill:
                 proc.kill()
             if status == None:
-                outs = None
-                try:
-                    outs, errs = proc.communicate(timeout=1)
-                except subprocess.TimeoutExpired:
-                    #proc.kill()
-                    #outs, errs = proc.communicate()
-                    pass
-                print(st.session_state.kill)
-                if outs:
-                    for l in outs.splitlines():
-                        print( l.decode("utf-8")  )
+                # outs = None
+                # try:
+                #     outs, errs = proc.communicate(timeout=1)
+                # except subprocess.TimeoutExpired:
+                #     #proc.kill()
+                #     #outs, errs = proc.communicate()
+                #     pass
+                # # print(st.session_state.kill)
+                # print(">",outs)
+                # if outs:
+                #     for l in outs.splitlines():
+
+                for l in iter(proc.stdout.readline, b''):
+                        print( l.decode("utf-8").strip()  )
+                        # components.html("""
+                        #     <script language="javascript">
+                        #     $("span").last()[0].scrollIntoView({ behavior: 'smooth' });
+                        #     </script>
+                        # """)
 
             elif status == 0:
                 # harvest the answers

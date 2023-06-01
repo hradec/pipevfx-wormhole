@@ -21,7 +21,8 @@ def write_file(filepath, data):
         for row in data:
             # Map the second column back to boot options
             row[1] = str(boot_options[row[1]])
-            line = ' '.join([str(x) for x in row])
+            # line = ' '.join([str(x) for x in row])
+            line = "%s  %4s  %-4s  %s" % (row[3], row[1], row[2], row[0] )
             f.write(line + '\n')
 
 
@@ -65,13 +66,12 @@ def main():
 
         # Write the changes to the file
         data = df.values.tolist()
-        write_file('grub_boot_defaults', data)
-
+        write_file('data/grub_boot_defaults', data)
 
         # Run the shell command
         expander = st.expander("applying changes...", expanded=True)
-        with expander:
-            status = _run('data/grub_boot_defaults_apply.sh')
+        # with expander:
+        status = _run('data/grub_boot_defaults_apply.sh') #, maxsize=600)
 
         secondScreen.empty()
         with secondScreen.container():

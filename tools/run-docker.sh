@@ -36,7 +36,7 @@ docker run --name streamlit $extra \
 	-v /etc/shadow:/etc/shadow \
 	-v /etc/passwd:/etc/passwd \
 	-v /etc/sudoers:/etc/sudoers \
-	-v $(readlink -f /home/$USER):$HOME:shared \
+	-v $(readlink -f $HOME):$HOME:shared \
 	-v $CD:$CD:shared \
 	-v $CD:/data:shared \
 hradec/streamlit "$@"
