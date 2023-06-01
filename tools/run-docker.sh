@@ -3,18 +3,23 @@
 CD=$(readlink -f $(dirname $(readlink -f $0))/../)
 
 extra=" -ti "
+# if DAEMON is set in the environment, run the container detached
 if [ "$DAEMON" != "" ] ; then
 	extra=" --restart always --detach "
 fi
 
+# look for pipevfx root folder and map it as volume in docker
 volumes=""
 for each in $(ls -1 /*/.root) ; do
 	each=$(dirname $each)
 	volumes="$volumes -v $each:$each "
 done
-for each in $(ls -1 $CD/scripts/*) ; do
+
+# resolve the real location of every file in the scripts and data folder, and
+# map it's path as a volume in docker
+for each in $(ls -1 $CD/scripts/* ; ls -1 $CD/data/*) ; do
 	abs=$(dirname $(readlink -f $each))
-	abs=$(df -h $abs | grep -v Size | awk '{print $(NF)}')
+	#abs=$(df -h $abs | grep -v Size | awk '{print $(NF)}')
 	if [ "$(echo $volumes | grep $abs)" == "" ] ; then
 		volumes="$volumes -v $abs:$abs "
 	fi

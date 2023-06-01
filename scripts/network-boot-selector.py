@@ -37,7 +37,7 @@ def run_shell_command(cmd):
 def main():
 
     # Load the data
-    data = read_file('scripts/grub_boot_defaults')
+    data = read_file('data/grub_boot_defaults')
     df = pd.DataFrame(data, columns=['MAC', 'OS to Boot', 'Menu Timeout', 'Hostname'])
     df['OS to Boot'] = pd.Categorical(df['OS to Boot'].replace({str(v): k for k, v in boot_options.items()}))
     df['Menu Timeout'] = df['Menu Timeout'].astype('int')
@@ -46,7 +46,7 @@ def main():
     df = st.experimental_data_editor(df, height=800, use_container_width=True)
 
     # OK button
-    if st.button('OK', key='ok_button', use_container_width=True, type="primary"):
+    if st.button('APPLY CHANGES', key='ok_button', use_container_width=True, type="primary"):
         # Ensure that 'Value_3' is integer before writing to the file
         try:
             df['Menu Timeout'] = df['Menu Timeout'].astype('int')
