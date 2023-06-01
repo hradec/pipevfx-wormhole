@@ -83,18 +83,21 @@ script = sidebar()
 with st.container():
     st.write("## %s" % os.path.basename(script), )
 
-    cols = st.columns([1,10], gap="small")
-    scols = cols[0].columns(2, gap="small")
-    # show = scols[0].button("SHOW CODE", use_container_width=True, args=[script])
-    run = scols[0].button("RUN", use_container_width=True, args=[script], type="primary")
-    stop = scols[1].button("STOP", use_container_width=True, on_click=_stop, args=[script])
+    if os.path.splitext(script.lower())[-1] in ['.py']:
+        exec( ''.join(open(script,'r').readlines()) )
+    else:
+        cols = st.columns([1,10], gap="small")
+        scols = cols[0].columns(2, gap="small")
+        # show = scols[0].button("SHOW CODE", use_container_width=True, args=[script])
+        run = scols[0].button("RUN", use_container_width=True, args=[script], type="primary")
+        stop = scols[1].button("STOP", use_container_width=True, on_click=_stop, args=[script])
 
-    #selection = st_btn_select( ("SHOW CODE", "RUN", "STOP"), index=0, nav=False, key='actions' )
+        #selection = st_btn_select( ("SHOW CODE", "RUN", "STOP"), index=0, nav=False, key='actions' )
 
-    with cols[1]:
-        _show_code(script)
-    st.divider()
+        with cols[1]:
+            _show_code(script)
+        st.divider()
 
 
-    if run:
-        _run(script)
+        if run:
+            _run(script)
