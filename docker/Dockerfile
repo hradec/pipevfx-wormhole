@@ -50,5 +50,6 @@ RUN apt install -y libxxf86vm1
 RUN apt install -y libsm6
 RUN apt install -y unzip
 RUN apt install -y cron jq
+RUN apt install -y ssh
 
 ENTRYPOINT ["/init.sh"]
