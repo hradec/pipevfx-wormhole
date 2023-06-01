@@ -21,17 +21,9 @@ def write_file(filepath, data):
         for row in data:
             # Map the second column back to boot options
             row[1] = str(boot_options[row[1]])
-            line = ' '.join([ str(x) for x in row ])
+            line = ' '.join([str(x) for x in row])
             f.write(line + '\n')
 
-# Function to run a shell command and return its output
-def run_shell_command(cmd):
-    output = ""
-    process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    for line in process.stdout:
-        line = line.decode().strip()
-        output += line + "\n"
-    return output
 
 # Main Streamlit application
 def main():
@@ -39,35 +31,56 @@ def main():
     # Load the data
     data = read_file('data/grub_boot_defaults')
     df = pd.DataFrame(data, columns=['MAC', 'OS to Boot', 'Menu Timeout', 'Hostname'])
+
+    # Reorder the columns
+    df = df[['Hostname', 'OS to Boot', 'Menu Timeout', 'MAC']]
+
     df['OS to Boot'] = pd.Categorical(df['OS to Boot'].replace({str(v): k for k, v in boot_options.items()}))
     df['Menu Timeout'] = df['Menu Timeout'].astype('int')
 
-    # Edit the DataFrame with increased height and full width
-    df = st.experimental_data_editor(df, height=800, use_container_width=True)
+    firstScreen = st.empty()
+    secondScreen = st.empty()
 
-    # OK button
-    if st.button('APPLY CHANGES', key='ok_button', use_container_width=True, type="primary"):
-        # Ensure that 'Value_3' is integer before writing to the file
+    with firstScreen.container():
+
+        # Edit the DataFrame with increased height and full width
+        df = st.experimental_data_editor(df, height=800, use_container_width=True)
+
+        # OK button
+        result = st.button('APPLY CHANGES', key='ok_button', use_container_width=True, type="primary")
+
+    if result:
+        # "clear screen"
+        firstScreen.empty()
+
+        with secondScreen.container():
+            st.warning("Please wait wile the server applies the changes. Please avoid booting any machines during this process since the network boot files are being altered and it can cause failed boot!")
+
+        # Ensure that 'Menu Timeout' is integer before writing to the file
         try:
             df['Menu Timeout'] = df['Menu Timeout'].astype('int')
         except ValueError:
-            st.error("Please enter valid integer values for the third column.")
+            st.error("Please enter valid integer values for the 'Menu Timeout' column.")
             return
 
         # Write the changes to the file
         data = df.values.tolist()
         write_file('grub_boot_defaults', data)
 
-        # # Run the shell command
-        # shell_cmd_output = run_shell_command('ls -l /')
-        #
-        # # Display the shell command output
-        # st.text_area("Shell Command Output:", value=shell_cmd_output, height=200)
-        #
-        # st.success("File updated successfully!")
-        # st.experimental_rerun()
 
-        _run('scripts/list-root.sh')
+        # Run the shell command
+        expander = st.expander("applying changes...", expanded=True)
+        with expander:
+            status = _run('data/grub_boot_defaults_apply.sh')
+
+        secondScreen.empty()
+        with secondScreen.container():
+            if status == 0:
+                st.success("The network boot changes have been applied susscessfully!")
+                if st.button('DONE', use_container_width=True, type="primary"):
+                    st.experimental_rerun()
+            else:
+                st.error("The network boot changes have failed to apply. \nPlease inform this to your pipeVFX administrator asap as your network boot may be disrupted at this point.")
 
 if __name__ == "__main__":
     main()

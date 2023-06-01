@@ -46,6 +46,7 @@ def _run(script):
     with rd.stdout():
         proc = subprocess.Popen( [script], shell=False, bufsize=1, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         print("="*200)
+        status = 0
         while True:
             status = proc.poll()
             if st.session_state.kill:
@@ -74,6 +75,7 @@ def _run(script):
                 break
             time.sleep(0.01)
             # print("="*200)
+    return status
 
 def _stop(script):
     st.session_state.kill = True
