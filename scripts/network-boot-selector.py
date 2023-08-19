@@ -45,7 +45,7 @@ def main():
     with firstScreen.container():
 
         # Edit the DataFrame with increased height and full width
-        df = st.experimental_data_editor(df, height=800, use_container_width=True)
+        df = st.data_editor(df, height=800, use_container_width=True)
 
         # OK button
         result = st.button('APPLY CHANGES', key='ok_button', use_container_width=True, type="primary")

@@ -17,8 +17,11 @@ done
 
 # resolve the real location of every file in the scripts and data folder, and
 # map it's path as a volume in docker
-for each in $(ls -1 $CD/scripts/* ; ls -1 $CD/data/*) ; do
-	abs=$(dirname $(readlink -f $each))
+for each in $(ls -1d $CD/scripts/* ; ls -1d $CD/data/*) ; do
+	abs=$(readlink -f $each)
+	if [ -f $abs ] ; then
+		abs=$(dirname $abs)
+	fi
 	#abs=$(df -h $abs | grep -v Size | awk '{print $(NF)}')
 	if [ "$(echo $volumes | grep $abs)" == "" ] ; then
 		volumes="$volumes -v $abs:$abs:shared "
@@ -40,3 +43,4 @@ docker run --name streamlit $extra \
 	-v $CD:$CD:shared \
 	-v $CD:/data:shared \
 hradec/streamlit "$@"
+
