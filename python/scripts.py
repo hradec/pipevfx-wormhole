@@ -16,11 +16,22 @@ st.set_page_config(layout="wide", initial_sidebar_state="expanded", page_title="
 if 'sidebar_state' not in st.session_state:
     st.session_state.sidebar_state = 'expanded'
 
+# Initialize session state
+if 'script' not in st.session_state:
+    st.session_state.script = None
+
+# Check if URL has parameter
+params = st.experimental_get_query_params()
+if 'script' in params:
+    st.session_state.script = params['script'][0]
+
 def sidebar():
     with st.sidebar:
         buttons = []
         dbuttons = {}
-        for each in glob.glob( f"{scripts_folder}/scripts/*" ):
+        scripts = glob.glob( f"{scripts_folder}/scripts/*" )
+        scripts.sort()
+        for each in scripts:
             each = os.path.abspath(each)
             if os.path.isfile(each):
                 # buttons += [ st.radio( os.path.basename(each), on_change=sidebar_runscript, args=[each] ) ]
@@ -28,11 +39,13 @@ def sidebar():
                 dbuttons[ os.path.basename(each) ] = each
 
         selected = 0
-        if hasattr(st.session_state, 'script'):
-            if st.session_state.script in dbuttons.keys():
-                selected = dbuttons.keys().index( st.session_state.script )
+        if hasattr(st.session_state, 'script') and st.session_state.script:
+            keys = list(dbuttons.keys())
+            sel = [ x for x in keys if st.session_state.script in x ]
+            if sel:
+                selected = keys.index( sel[0] )
 
-        script = st.radio('select the scritp to run:', options=dbuttons.keys(), index = selected)
+        script = st.radio(f'select the scritp to run:', options=dbuttons.keys(), index = selected)
         ret = dbuttons[script]
         st.session_state.script = ret
         return ret
