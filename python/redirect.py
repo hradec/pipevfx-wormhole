@@ -41,7 +41,7 @@ class _Redirect:
             self._trigger(self.get_filtered_output())
 
     def __init__(self, stdout=None, stderr=False, format=None, to=None, max_buffer=None, buffer_separator='\n',
-                 regex=None, duplicate_out=False):
+                 regex=None, duplicate_out=False, msg=""):
         self.io_args = {'trigger': self._write, 'max_buffer': max_buffer, 'buffer_separator': buffer_separator,
                         'regex': regex}
         self.redirections = []
@@ -53,6 +53,7 @@ class _Redirect:
         self.fun = None
         self.duplicate_out = duplicate_out or None
         self.active_nested = None
+        self.msg = msg
 
         if not self.stdout and not self.stderr:
             raise ValueError("one of stdout or stderr must be True")
@@ -76,10 +77,15 @@ class _Redirect:
                 raise Exception("Already entered")
         to = self.to or st
 
-        to.text(f"Redirected output from "
-                f"{'stdout and stderr' if self.stdout and self.stderr else 'stdout' if self.stdout else 'stderr'}"
-                f"{' [' + self.io_args['regex'] + ']' if self.io_args['regex'] else ''}"
-                f":")
+        if not self.msg:
+            to.text(f"Redirected output from "
+                    f"{'stdout and stderr' if self.stdout and self.stderr else 'stdout' if self.stdout else 'stderr'}"
+                    f"{' [' + self.io_args['regex'] + ']' if self.io_args['regex'] else ''}"
+                    f":")
+        else:
+            if self.msg.strip():
+                to.text(self.msg)
+            
         self.st = to.empty()
         self.fun = getattr(self.st, self.format)
 
