@@ -12,7 +12,7 @@ fi
 volumes=""
 for each in $(ls -1 /*/.root) ; do
 	each=$(dirname $each)
-	volumes="$volumes -v $each:$each:shared "
+	volumes="$volumes -v $each:$each "
 done
 
 # resolve the real location of every file in the scripts and data folder, and
@@ -24,7 +24,7 @@ for each in $(ls -1d $CD/scripts/* ; ls -1d $CD/data/*) ; do
 	fi
 	#abs=$(df -h $abs | grep -v Size | awk '{print $(NF)}')
 	if [ "$(echo $volumes | grep $abs)" == "" ] ; then
-		volumes="$volumes -v $abs:$abs:shared "
+		volumes="$volumes -v $abs:$abs "
 	fi
 done
 
@@ -39,8 +39,8 @@ docker run --name streamlit $extra \
 	-v /etc/shadow:/etc/shadow \
 	-v /etc/passwd:/etc/passwd \
 	-v /etc/sudoers:/etc/sudoers \
-	-v $(readlink -f $HOME):$HOME:shared \
-	-v $CD:$CD:shared \
-	-v $CD:/data:shared \
+	-v $(readlink -f $HOME):$HOME \
+	-v $CD:$CD \
+	-v $CD:/data \
 hradec/streamlit "$@"
 
