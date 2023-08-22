@@ -28,13 +28,15 @@ python3 -m pip install -U pip
 #cmake ../  -DUSE_PYALEMBIC=1
 #make -j 8
 
+python3 -m pip install -U streamlit-autorefresh
 python3 -m pip install -U streamlit
 python3 -m pip install st_btn_select
+python3 -m pip install psutil
+python3 -m pip install matplot
 #./env.$pv/bin/python3 -m pip install -U setuptools
 # ./env.$pv/bin/python3 -m pip install torch==1.7.1+cu110 torchvision==0.8.2+cu110 torchaudio==0.7.2 -f https://download.pytorch.org/whl/torch_stable.html
 #./env.$pv/bin/python3 -m pip install torch torchvision torchaudio -f https://download.pytorch.org/whl/torch_stable.html
 #./env.$pv/bin/python3 -m pip install opencv-python matplotlib
-#./env.$pv/bin/python3 -m pip install matplot
 #./env.$pv/bin/python3 -m pip install spyder
 #./env.$pv/bin/python3 -m pip install -U 'git+https://github.com/IDEA-Research/GroundingDINO.git'
 #./env.$pv/bin/python3 -m pip install -U 'git+https://github.com/facebookresearch/segment-anything.git'
